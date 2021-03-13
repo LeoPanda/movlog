@@ -1,0 +1,23 @@
+<html>
+
+<head>
+  <link rel="shortcut icon" href="{{ url_for('static',filename='favicon.ico') }}" type="image/vnd.microsoft.icon">
+  <meta name="google-signin-scope" content="{{ SCOPES }}">
+  <meta name="google-signin-client_id"
+    content="{{ CLIENT_ID }}">
+</head>
+
+<title>server</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static',
+filename='style.css') }}">
+<script src="{{ url_for('static',filename='loginfunc.js') }}"></script>
+
+<h1>server</h1>
+<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+<script src="{{ url_for('static',filename='loginfunc.js') }}"></script>
+<div id="guser"></div>
+<div id="g-signin"></div>
+{% block body %}
+{% endblock body %}
+
+</html>

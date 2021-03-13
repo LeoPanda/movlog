@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block  body%}
+<table>
+    {% set ns = namespace(cnt = 0) %}
+    {% for event in events %}
+    {% set ns.cnt = ns.cnt + 1 %}
+    <tr>
+        <td>{{ns.cnt}}</td>
+        <td>{{ event["summary"] }}</td>
+        <td>{{ event["title"] }}</td>
+        <td>{{ event["domestic"] }}</td>
+        <td>{{ event["screen_type"] }}</td>
+        <td>{{ event["location"] }}</td>
+        <td>{{ event["start"]["date_time"] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock%}

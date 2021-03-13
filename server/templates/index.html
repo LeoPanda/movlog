@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block body %}
+<table>
+{% for k,v in links.items() %}
+<tr><td>
+<a href="{{ v }}">{{ k }}</a>
+</td></tr>
+{% endfor %}
+</table>
+{% endblock %}
