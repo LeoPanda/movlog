@@ -24,16 +24,6 @@ export function checkUserInfoExpired() {
     }
 }
 
-/**サーバーデータをリロード */
-export function reload(storage_items) {
-    if (storage_items.length > 0) {
-        storage_items.forEach(item => {
-            clearLocalStorage(item)
-        })
-        setMsg("アイテムを削除しました。")
-        router.go({ path: '/', force: true })
-    }
-}
 
 /**googleカレンダーのデータリンクを指示する */
 export async function linkCalendar() {
@@ -44,7 +34,7 @@ export async function linkCalendar() {
         clearLocalStorage("events")
         clearLocalStorage("locations")
         loadInitialData()
-        setMsg("データリンクが完了しました。")
+        setMsg("データリンクが完了しました。", "success", "reload")
         router.push("/")
     } else {
         setMsg("データリンクでエラーが発生しました。", "error")

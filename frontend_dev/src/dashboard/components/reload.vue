@@ -5,7 +5,7 @@
     <v-row width="300" class="d-flex ml-0">
       <!--序文-->
       <v-col cols="auto">
-        ローカルストレージを削除し、サーバー上のデータをリロードします。リロードするアイテムを選択してください。
+        ローカルストレージ上のデータを削除します。アイテムを選択してください。
       </v-col>
     </v-row>
     <!--Item選択-->
@@ -43,14 +43,14 @@
           class="mr-0"
           :disabled="this.storage_items.length == 0"
         >
-          リロード
+          ローカルデータの削除
           <v-icon right> mdi-sync </v-icon></v-btn
         >
       </v-col>
       <!--確認ダイアログ-->
       <Confirm
         :openConfirm="dialog"
-        :msgItems="[{ message: '選択したアイテムを削除します。' }]"
+        :msgItems="[{ message: 'ローカルデータを削除します。' }]"
         confirmMsg="よろしいですか?"
         @do="goReload"
         @cancel="dialog = false"
@@ -60,7 +60,9 @@
 </template>
 
 <script>
-import { reload } from "@/js/loadControl";
+import { setMsg } from "@/js/msgSetter";
+import { clearLocalStorage } from "@/js/localStorage";
+
 export default {
   components: {
     Confirm: () => import("@/dashboard/components/Confirm"),
@@ -70,7 +72,13 @@ export default {
   },
   methods: {
     goReload() {
-      reload(this.storage_items);
+      /** サーバーデータをリロード */
+      if (this.storage_items.length > 0) {
+        this.storage_items.forEach((item) => {
+          clearLocalStorage(item);
+        });
+        setMsg("ローカルデータを削除しました。", "success", "reload");
+      }
       this.dialog = false;
       this.$router.push("/");
     },

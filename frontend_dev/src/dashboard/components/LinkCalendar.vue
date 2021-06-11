@@ -38,6 +38,7 @@
 
 <script>
 import { linkCalendar } from "@/js/loadControl";
+
 export default {
   components: {
     TableList: () => import("@/dashboard/components/parts/TableList"),
@@ -50,7 +51,6 @@ export default {
     goLink() {
       linkCalendar();
       this.dialog = false;
-      this.$router.push("/");
     },
   },
 };

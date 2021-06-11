@@ -68,6 +68,11 @@ def search_imdb_by_title(title):
         for string in title_section.strings:
             title += string
 
+        if "aka " in title:
+            re_title = re.search('"(.*)"', title)
+            if re_title:
+                title = re_title.group(1)
+
         item = {"id": id, "title": title}
 
         img_src_segment = element.find('td', class_='primary_photo')
@@ -124,28 +129,18 @@ def get_imdb_detail(id):
     res = requests.get(get_url("imdb", "detail") + id)
     soup = BeautifulSoup(res.text, 'html.parser')
 
-    rating_section = soup.find('div', class_='ratingValue')
-    title_section = soup.find('div', class_='titleBar')
-
-    img_src_section = soup.find('div', class_='poster')
+    rating_section = soup.find(
+        'span', class_='rating')
+    title_section = soup.find(
+        'h1', class_='')
 
     detail = {"id": id}
     if rating_section is not None:
-        detail.update({"rate": rating_section.find(
-            'span', itemprop="ratingValue").text})
+        rating = rating_section.text
+        rating = rating[0:rating.find('/')] if '/' in rating else rating
+        detail.update({"rate": rating})
 
     if title_section is not None:
-        original_title_section = title_section.find(
-            'div', class_='originalTitle')
-        if original_title_section is not None:
-            en_title = list(original_title_section.strings)[0]
-        else:
-            en_title = str.rstrip(list(title_section.find(
-                'div', class_='title_wrapper').h1.strings)[0])
-
-        detail.update({'en_title': en_title})
-
-    if img_src_section is not None:
-        detail.update({'img_src': img_src_section.find('img')['src']})
+        detail.update({'en_title': title_section.text})
 
     return detail

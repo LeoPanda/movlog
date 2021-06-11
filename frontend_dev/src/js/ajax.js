@@ -18,7 +18,6 @@ export async function ajaxPut(url, json) {
 */
 async function doAjax(url, ajaxFunc, json = null) {
     url = getDevServer() + url;
-    console.log('url=' + url)
     let param = [url]
     if (json) {
         param.push(json)
@@ -26,7 +25,6 @@ async function doAjax(url, ajaxFunc, json = null) {
     const res = await ajaxFunc(...param, { withCredentials: true })
         .catch(error => { logError(error) })
     if ("auth_url" in res.data) {
-        console.log('auth_url=' + res.data.auth_url)
         location.href = getDevServer() + res.data.auth_url;
     } else {
         return res

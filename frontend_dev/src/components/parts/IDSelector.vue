@@ -3,7 +3,7 @@
   <v-row>
     <!--ID-->
     <v-col class="pr-0 mr-0">
-      <v-text-field :label="label" v-model="id_value" dense />
+      <v-text-field :label="label" v-model="item.id" dense />
     </v-col>
     <!-- 値適用ボタン(外部DBへ問い合わせて親画面へ値を適用させる) -->
     <v-col class="pl-0 ml-0 pr-0 mr-0">
@@ -18,23 +18,24 @@
         @click="getSelect(site)"
         :items="items"
         @change="
-          (val) => {
-            this.id_value = val;
-            this.adaptValue();
+          (selected) => {
+            this.adaptValue(selected);
           }
         "
+        item-text="title"
         :label="label"
         :no-data-text="no_data_text"
+        return-object
       >
         <!--セレクタ表示カスタマイズ -->
         <template v-slot:item="{ item }">
           <!--ポスターアート -->
           <v-list-item-avatar tile color="grey lighten-3">
-            <v-img width="20" height="40" :src="item.img"></v-img>
+            <v-img width="20" height="40" :src="item.img_src"></v-img>
           </v-list-item-avatar>
           <!--タイトル名-->
           <v-list-item-content>
-            <v-list-item-title v-text="item.text"></v-list-item-title>
+            <v-list-item-title v-text="item.title"></v-list-item-title>
           </v-list-item-content>
         </template>
       </v-select>
@@ -47,7 +48,7 @@ export default {
   name: "IDSelector",
   props: ["keyword", "label", "site", "id"],
   data() {
-    return { items: [], id_value: "", no_data_text: "" };
+    return { items: [], item: {}, no_data_text: "" };
   },
   methods: {
     async getSelect(site) {
@@ -58,16 +59,19 @@ export default {
       );
       this.no_data_text = "該当データなし";
       this.items = response.data.map((item) => {
-        return { text: item.title, value: item.id, img: item.img_src };
+        return { title: item.title, id: item.id, img_src: item.img_src };
       });
     },
-    adaptValue() {
+    adaptValue(selected) {
       //親画面へIDを返す
-      this.$emit("input", this.id_value);
+      this.$set(this.item, "id", selected.id);
+      this.$set(this.item, "title", selected.title);
+      this.$set(this.item, "img_src", selected.img_src);
+      this.$emit("input", this.item);
     },
   },
   mounted() {
-    this.id_value = this.id;
+    this.$set(this.item, "id", this.id);
   },
 };
 </script>

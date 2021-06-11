@@ -29,13 +29,17 @@
 <script>
 import { mapState } from "vuex";
 export default {
-  computed: mapState(["message"]),
+  computed: mapState(["message", "reload"]),
   data() {
     return { display: false };
   },
   methods: {
     confirm() {
       this.$store.commit("SET_MESSAGE", "");
+      if (this.reload) {
+        this.$router.go({ path: this.$router.currentRoute.path, force: true });
+        this.$store.commit("SET_RELOAD", false);
+      }
     },
   },
   watch: {

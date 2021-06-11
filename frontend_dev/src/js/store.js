@@ -15,6 +15,7 @@ export default new Vuex.Store({
     uploadItems: [],
     pageStartIndex: 1,
     eventsNum: 0,
+    reload: false,
     loading: false,
     message: {},
   },
@@ -54,6 +55,9 @@ export default new Vuex.Store({
     },
     SET_MESSAGE(state, payload) {
       state.message = payload
+    },
+    SET_RELOAD(state, payload) {
+      state.reload = payload
     }
   },
   actions: {

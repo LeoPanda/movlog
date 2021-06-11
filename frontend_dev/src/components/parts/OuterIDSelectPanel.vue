@@ -23,7 +23,7 @@
           site="imdb"
           :keyword="keyword"
           :id="event['outer_id'] ? event.outer_id['imdb'] : ''"
-          @input="(id) => this.onIDChange('imdb', id)"
+          @input="(selected) => this.onImdbIDChange(selected)"
         />
         <!--映画DB検索セレクタ-->
         <IDSelector
@@ -31,7 +31,7 @@
           site="eiga_db"
           :keyword="keyword"
           :id="event['outer_id'] ? event.outer_id['eiga_db'] : ''"
-          @input="(id) => this.onIDChange('eiga_db', id)"
+          @input="(selected) => this.onIDChange('eiga_db', selected.id)"
         />
       </v-card>
       <!--ローディング中オーバーレイ -->
@@ -43,6 +43,7 @@
 </template>
 <script>
 import { ajaxGet } from "@/js/ajax.js";
+import { getImgUrl } from "@/js/imgSizeControl";
 export default {
   name: "OuterIDSelectPanel",
   props: ["event"],
@@ -79,6 +80,19 @@ export default {
     this.keyword = this.event.title;
   },
   methods: {
+    getImgUrl,
+    onImdbIDChange(selected) {
+      //IMDB_ID受け取り後処理
+      //IMDBの映画詳細画面の仕様が変更されたため
+      //イメージ画像のURLをスクレイプできなくなったので
+      //候補一覧から取得する処理を追加
+      this.onIDChange("imdb", selected.id);
+      this.setRetVal("imdb", selected.id, {
+        title: selected.title,
+        img_src: selected.img_src,
+      });
+      this.$emit("input", this.retVal);
+    },
     async onIDChange(site, id) {
       //ID受け取り後処理
       //サーバーに問い合わせて値を取得する
@@ -93,38 +107,25 @@ export default {
       //ID
       this.$set(this.retVal.outer_id, site, id);
       //英語タイトル
-      if ("en_title" in data) {
-        if (this.event["en_title"]) {
-          //既存値を優先
-          this.$set(this.retVal, "en_title", this.event["en_title"]);
-        } else {
-          this.$set(this.retVal, "en_title", data.en_title);
-        }
-        if (site == "imdb") {
-          //IMDBのタイトル名を最優先
-          this.$set(this.retVal, "en_title", data.en_title);
-        }
+      if ("en_title" in data && data.en_title.length > 0) {
+        this.$set(this.retVal, "en_title", data.en_title);
       }
       //タイトル
       if ("title" in data && data.title.length > 0) {
         this.$set(this.retVal, "title", data.title);
       }
       //概要
-      if ("outline" in data) {
-        //既存値を優先
-        if (
-          !this.retVal["outline"] ||
-          (this.retval["outline"] && this.retVal["outline"].length == 0)
-        ) {
-          this.$set(this.retVal, "outline", data.outline);
-        }
+      if ("outline" in data && data.outline.length > 0) {
+        this.$set(this.retVal, "outline", data.outline);
       }
       //ポスターイメージ
-      this.$set(
-        this.retVal.img_src,
-        site,
-        "img_src" in data ? (isEvent ? data.img_src[site] : data.img_src) : ""
-      );
+      if ("img_src" in data) {
+        this.$set(
+          this.retVal.img_src,
+          site,
+          isEvent ? data.img_src[site] : this.getImgUrl(data.img_src, "middle")
+        );
+      }
       //レート
       this.$set(
         this.retVal.outer_rate,
