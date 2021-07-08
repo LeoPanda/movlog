@@ -27,54 +27,59 @@
               />
             </v-row>
             <v-row>
-              <!-- 英語タイトル名 -->
-              <CardTextField
-                v-if="visibleEnTitle"
-                v-model="event.en_title"
-                label="english title"
-                :editMode="editMode"
-              />
-              <!-- 劇場名-->
-              <SelectableItems
-                v-if="!event['on_tv']"
-                :event="event"
-                :editMode="editMode"
-                :items="this.$store.state.locations.map((item) => item.name)"
-                itemKey="location"
-                label="theater"
-                :multiple="false"
-                :rules="required"
-                @input="
-                  (val) => {
-                    this.$set(this.event, 'location', val);
-                  }
-                "
-              />
-
-              <!-- 配信プロバイダ -->
-              <SelectableItems
-                v-if="event['on_tv']"
-                :event="event"
-                :editMode="editMode"
-                :items="this.$store.state.tables['providers']"
-                itemKey="streaming_provider"
-                label="streaming provider"
-                :multiple="false"
-                :rules="required"
-                @input="
-                  (val) => {
-                    this.$set(this.event, 'streaming_provider', val);
-                  }
-                "
-              />
-
-              <!-- 鑑賞日付 -->
-              <CardDateField
-                label="watched date"
-                :editMode="editMode"
-                :inDate="watchDate"
-                @input="setDate"
-              />
+              <v-card flat width="300" class="d-flex justify-space-around ml-1">
+                <!-- 英語タイトル名 -->
+                <CardTextField
+                  v-if="visibleEnTitle"
+                  v-model="event.en_title"
+                  label="english title"
+                  :editMode="editMode"
+                  width="300"
+                />
+                <!-- 劇場名-->
+                <SelectableItems
+                  v-if="!event['on_tv']"
+                  :event="event"
+                  :editMode="editMode"
+                  :items="this.$store.state.locations.map((item) => item.name)"
+                  itemKey="location"
+                  label="theater"
+                  :multiple="false"
+                  :rules="required"
+                  @input="
+                    (val) => {
+                      this.$set(this.event, 'location', val);
+                    }
+                  "
+                />
+              </v-card>
+              <v-card flat class="d-flex justify-space-around ml-1">
+                <!-- 配信プロバイダ -->
+                <SelectableItems
+                  v-if="event['on_tv']"
+                  :event="event"
+                  :editMode="editMode"
+                  :items="this.$store.state.tables['providers']"
+                  itemKey="streaming_provider"
+                  label="streaming provider"
+                  :multiple="false"
+                  :rules="required"
+                  @input="
+                    (val) => {
+                      this.$set(this.event, 'streaming_provider', val);
+                    }
+                  "
+                />
+              </v-card>
+              <v-card flat class="d-flex justify-space-around ml-1">
+                <!-- 鑑賞日付 -->
+                <CardDateField
+                  label="watched date"
+                  :editMode="editMode"
+                  :inDate="watchDate"
+                  @input="setDate"
+                />
+              </v-card>
             </v-row>
             <!-- 内容の概要説明 -->
             <v-row>
@@ -204,7 +209,7 @@ export default {
       editMode: false,
       isNew: false,
       isEventChanged: false,
-      visibleEnTitle: false,
+      visibleEnTitle: true,
       watchDate: "",
       imgWidth: 182,
       imgSize: "middle",
