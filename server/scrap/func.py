@@ -1,5 +1,6 @@
 import requests
 import re
+import json
 from bs4 import BeautifulSoup
 
 URLS = {"eiga_db":
@@ -129,18 +130,27 @@ def get_imdb_detail(id):
     res = requests.get(get_url("imdb", "detail") + id)
     soup = BeautifulSoup(res.text, 'html.parser')
 
-    rating_section = soup.find(
-        'span', class_='rating')
-    title_section = soup.find(
-        'h1', class_='')
+    script_section = soup.find('script', type='application/ld+json')
 
     detail = {"id": id}
-    if rating_section is not None:
-        rating = rating_section.text
-        rating = rating[0:rating.find('/')] if '/' in rating else rating
-        detail.update({"rate": rating})
 
-    if title_section is not None:
-        detail.update({'en_title': title_section.text})
+    if script_section is not None:
+        json_content = json.loads(script_section.contents[0])
+
+        if 'aggregateRating' in json_content:
+            if 'ratingValue' in json_content['aggregateRating']:
+                rating = json_content['aggregateRating']['ratingValue']
+                detail.update({"rate": "{:.1f}".format(rating)})
+
+        if 'name' in json_content:
+            if 'alternateName' in json_content:
+                detail.update({'title': json_content['alternateName']})
+                detail.update({'en_title': json_content['name']})
+            else:
+                detail.update({'title': json_content['name']})
+                detail.update({'en_title': json_content['name']})
+
+        if 'image' in json_content:
+            detail.update({'img_src': json_content['image']})
 
     return detail

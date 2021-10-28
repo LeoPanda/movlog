@@ -1,8 +1,8 @@
 <template>
   <!--映画データベースのIDセレクタ-->
-  <v-row>
+  <v-row class="ma-0 ml-1">
     <!-- 候補セレクタ -->
-    <v-col class="ml-1 pr-0 mr-0">
+    <v-col>
       <v-select
         dense
         @click="getSelect(site)"
@@ -31,12 +31,18 @@
       </v-select>
     </v-col>
     <!--ID-->
-    <v-col class="pl-0 ml-1">
+    <v-col class="mx-0 pl-1">
       <v-text-field :label="label" v-model="item.id" dense />
     </v-col>
     <!-- 値適用ボタン(外部DBへ問い合わせて親画面へ値を適用させる) -->
     <v-col class="pl-0 ml-0 pr-0 mr-0">
-      <v-btn class="ma-0 pa-0" elevation="1" fab x-small @click="adaptValue">
+      <v-btn
+        class="ma-0 pa-0"
+        elevation="1"
+        fab
+        x-small
+        @click="$emit('input', item)"
+      >
         <v-icon>mdi-arrow-collapse-up</v-icon>
       </v-btn>
     </v-col>

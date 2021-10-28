@@ -33,6 +33,8 @@ export async function uploadToServer() {
         if ("success" in response.data) {
             clearLocalStorage(item.local)
             errItems = errItems.filter((errItem) => { errItem.local != item.local })
+        } else {
+            console.log(response.data)
         }
     }
     store.commit("SET_LOADING", false)

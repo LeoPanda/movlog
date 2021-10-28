@@ -27,7 +27,7 @@
               />
             </v-row>
             <v-row>
-              <v-card flat width="300" class="d-flex justify-space-around ml-1">
+              <v-card flat width="300" class="d-flex justify-space-around pl-1">
                 <!-- 英語タイトル名 -->
                 <CardTextField
                   v-if="visibleEnTitle"
@@ -53,7 +53,7 @@
                   "
                 />
               </v-card>
-              <v-card flat class="d-flex justify-space-around ml-1">
+              <v-card flat class="d-flex justify-space-around ma-0">
                 <!-- 配信プロバイダ -->
                 <SelectableItems
                   v-if="event['on_tv']"
@@ -71,7 +71,7 @@
                   "
                 />
               </v-card>
-              <v-card flat class="d-flex justify-space-around ml-1">
+              <v-card flat class="d-flex justify-space-around pl-1">
                 <!-- 鑑賞日付 -->
                 <CardDateField
                   label="watched date"
@@ -260,13 +260,19 @@ export default {
     setEvent(val) {
       //ID検索で得たデータをイベントにセットする
       if (val["title"]) {
-        this.$set(this.event, "title", val.title);
+        if (!this.event.title || !this.event.title.length > 0) {
+          this.$set(this.event, "title", val.title);
+        }
       }
       if (val["outline"]) {
-        this.$set(this.event, "outline", val.outline);
+        if (!this.event.outline || !this.event.outline.length > 0) {
+          this.$set(this.event, "outline", val.outline);
+        }
       }
       if (val["en_title"]) {
-        this.$set(this.event, "en_title", val.en_title);
+        if (!this.event.en_title || !this.event.en_title.length > 0) {
+          this.$set(this.event, "en_title", val.en_title);
+        }
       }
       this.$set(this.event, "img_src", val.img_src);
       this.$set(this.event, "outer_rate", val.outer_rate);

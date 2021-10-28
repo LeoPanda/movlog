@@ -1,9 +1,9 @@
 <template>
   <!--映画データベース検索コンポーネント-->
-  <v-card width="100%" class="mx-3">
+  <v-card width="100%" class="mx-1">
     <v-row>
       <!--外部検索キーワード-->
-      <v-col justify-start class="ml-3">
+      <v-col justify-start class="ml-1">
         <v-text-field
           label="外部DB検索keyword"
           :value="keyword"
@@ -11,29 +11,29 @@
           @input="(val) => (this.keyword = val)"
         />
       </v-col>
-      <v-col class="pa-0 ma-0 mt-4">
+      <v-col class="pa-0 ma-0 pt-3">
         <v-btn class="ma-0 pa-0" elevation="1" fab x-small @click="flipKeyword">
           <v-icon>mdi-sync</v-icon>
         </v-btn>
       </v-col>
-      <v-card outlined class="ml-2">
-        <!--IMDB検索セレクタ-->
-        <IDSelector
-          label="imdb"
-          site="imdb"
-          :keyword="keyword"
-          :id="event['outer_id'] ? event.outer_id['imdb'] : ''"
-          @input="(selected) => this.onImdbIDChange(selected)"
-        />
-        <!--映画DB検索セレクタ-->
-        <IDSelector
-          label="映画DB"
-          site="eiga_db"
-          :keyword="keyword"
-          :id="event['outer_id'] ? event.outer_id['eiga_db'] : ''"
-          @input="(selected) => this.onIDChange('eiga_db', selected.id)"
-        />
-      </v-card>
+    </v-row>
+    <v-row>
+      <!--IMDB検索セレクタ-->
+      <IDSelector
+        label="imdb"
+        site="imdb"
+        :keyword="keyword"
+        :id="event['outer_id'] ? event.outer_id['imdb'] : ''"
+        @input="(selected) => this.onIDChange('imdb', selected.id)"
+      />
+      <!--映画DB検索セレクタ-->
+      <IDSelector
+        label="映画DB"
+        site="eiga_db"
+        :keyword="keyword"
+        :id="event['outer_id'] ? event.outer_id['eiga_db'] : ''"
+        @input="(selected) => this.onIDChange('eiga_db', selected.id)"
+      />
       <!--ローディング中オーバーレイ -->
       <v-overlay absolute :value="progress">
         <v-progress-circular indeterminate size="64"></v-progress-circular>
@@ -52,47 +52,16 @@ export default {
   },
   data() {
     return {
-      retVal: {
-        outer_id: { imdb: "", eiga_db: "" },
-        img_src: { imdb: "", eiga_db: "" },
-        outer_rate: { imdb: "", eiga_db: "" },
-      },
       keyword: "",
       keywordFlip: true,
       progress: false,
     };
-  },
-  created() {
-    this.setRetVal(
-      "imdb",
-      this.event["outer_id"] ? this.event["outer_id"]["imdb"] : "",
-      this.event,
-      true
-    );
-    this.setRetVal(
-      "eiga_db",
-      this.event["outer_id"] ? this.event["outer_id"]["eiga_db"] : "",
-      this.event,
-      true
-    );
   },
   mounted() {
     this.keyword = this.event.title;
   },
   methods: {
     getImgUrl,
-    onImdbIDChange(selected) {
-      //IMDB_ID受け取り後処理
-      //IMDBの映画詳細画面の仕様が変更されたため
-      //イメージ画像のURLをスクレイプできなくなったので
-      //候補一覧から取得する処理を追加
-      this.onIDChange("imdb", selected.id);
-      this.setRetVal("imdb", selected.id, {
-        title: selected.title,
-        img_src: selected.img_src,
-      });
-      this.$emit("input", this.retVal);
-    },
     async onIDChange(site, id) {
       //ID受け取り後処理
       //サーバーに問い合わせて値を取得する
@@ -100,38 +69,60 @@ export default {
       const response = await ajaxGet("/scrap/" + site + "/get/" + id);
       this.progress = false;
       this.setRetVal(site, id, response.data);
-      this.$emit("input", this.retVal);
+      this.$emit("input", this.event);
     },
-    setRetVal(site, id, data, isEvent = false) {
+    setRetVal(site, id, data) {
       //リターン値をセットする
+
+      //外部サイトデータの初期値
+      const outer_init = { imdb: "", eiga_db: "" };
       //ID
-      this.$set(this.retVal.outer_id, site, id);
+      if (!("outer_id" in this.event)) {
+        this.$set(this.event, "outer_id", outer_init);
+      }
+      this.$set(this.event.outer_id, site, id);
       //英語タイトル
-      if ("en_title" in data && data.en_title.length > 0) {
-        this.$set(this.retVal, "en_title", data.en_title);
+      if ("en_title" in data) {
+        if (data.en_title.length > 0) {
+          if (!("en_title" in this.event) || !this.event.en_title.length > 0) {
+            this.$set(this.event, "en_title", data.en_title);
+          }
+        }
       }
       //タイトル
-      if ("title" in data && data.title.length > 0) {
-        this.$set(this.retVal, "title", data.title);
+      if ("title" in data) {
+        if (data.title.length > 0) {
+          if (!("title" in this.event) || !this.event.title.length > 0) {
+            this.$set(this.event, "title", data.title);
+          }
+        }
       }
       //概要
-      if ("outline" in data && data.outline.length > 0) {
-        this.$set(this.retVal, "outline", data.outline);
+      if ("outline" in data) {
+        if (data.outline.length > 0) {
+          if (!("outline" in this.event) || !this.event.outline.length > 0) {
+            this.$set(this.event, "outline", data.outline);
+          }
+        }
       }
       //ポスターイメージ
       if ("img_src" in data) {
+        if (!("img_src" in this.event)) {
+          this.$set(this.event, "img_src", outer_init);
+        }
         this.$set(
-          this.retVal.img_src,
+          this.event.img_src,
           site,
-          isEvent ? data.img_src[site] : this.getImgUrl(data.img_src, "middle")
+          this.getImgUrl(data.img_src, "middle")
         );
       }
       //レート
-      this.$set(
-        this.retVal.outer_rate,
-        site,
-        "rate" in data ? (isEvent ? data.rate[site] : data.rate) : ""
-      );
+      if ("rate" in data) {
+        if (!("outer_rate" in this.event)) {
+          this.$set(this.event, "outer_rate", outer_init);
+        }
+        this.$set(this.event.outer_rate, site, data.rate);
+      }
     },
     flipKeyword() {
       //検索キーワード（タイトル/英語タイトル）切り替え
