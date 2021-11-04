@@ -1,7 +1,7 @@
 from flask import jsonify
 from urllib.parse import quote
 from server.model.eventSchema import EventsSchema
-from server.scrap.func import get_eiga_detail, search_eiga_by_title, get_imdb_detail, search_imdb_by_title
+from server.scrap import imdb, eiga_db, tmdb
 from server.model.func import prevent_overwrite, organized_event_info
 from server.events.calendarAPI import get_calendar_events
 from server.events.placeAPI import add_new_locations_to_store
@@ -14,7 +14,7 @@ events_schema = EventsSchema(schema_name="events", many=True)
 
 def add_from_google_calendar(events: list, creds):
     # googleカレンダーから映画鑑賞イベントを抽出し、既存のイベント情報に追加する
-    latest_date = events_schema.get_time_max(events)  # 最終更新日の取得
+    latest_date = events_schema.get_time_max(events)  # メインスキーマの最終更新日の取得
     # FIXME:テスト用件数制限
     #latest_date = '2020-10-01T11:33:00+09:00'
     # FIXME:新宿武蔵野館追加対応用テンポラリ
@@ -44,17 +44,25 @@ def update_with_all_sources(event, force=False):
 
 def update_with_eigadb(event: dict, force=False):
     # 映画DBから情報を補足する
-    @__search_and_update_with_outer_db(event, "eiga_db", get_eiga_detail, force)
+    @__search_and_update_with_outer_db(event, "eiga_db", eiga_db.get_detail, force)
     def searcher(queted_title):
-        return search_eiga_by_title(queted_title)
+        return eiga_db.search_by_title(queted_title)
     return searcher
 
 
 def update_with_imdb(event: dict, force=False):
     # IMDBから情報を補足する
-    @__search_and_update_with_outer_db(event, "imdb", get_imdb_detail, force)
+    @__search_and_update_with_outer_db(event, "imdb", imdb.get_detail, force)
     def searcher(queted_title):
-        return search_imdb_by_title(queted_title+"&exact=true")
+        return imdb.search_by_title(queted_title+"&exact=true")
+    return searcher
+
+
+def update_with_tmdb(event: dict, force=False):
+    # TMDBから情報を補足する
+    @__search_and_update_with_outer_db(event, "tmdb", tmdb.get_detail, force)
+    def searcher(queted_title):
+        return tmdb.search_by_title(queted_title+"&exact=true")
     return searcher
 
 
@@ -67,8 +75,9 @@ def get_events_from_storage():
 
 def do_every_events(events: list, func, **options):
     # リストに格納されたイベントに対して関数を逐次実行する
+    print("doing every events on strage.")
     for event in events:
-        #print(event.get('title'), end=" ")
+        print(event.get('title'), end=" ")
         func(event, **options)
     return events
 
@@ -100,15 +109,15 @@ def __search_and_update_with_outer_db(event: dict, key: str, getter, force=False
     # だった場合、そのデータの詳細情報をgetterで指定された関数で取得して
     # イベント情報を更新する
     # event:更新するevent情報
-    # key:外部データの識別 imdb or eiga_db
+    # key:外部データの識別 imdb or eiga_db or tmdb
     # getter:外部データの情報取得関数
-    # 既存のIDを強制的に更新する
+    # force:外部IDがすでに追加済みであっても強制的に更新する
     def decolator(searcher):
         if __event_has_not_this_key(event, key):
             quoted_title = quote(__get_title(event))
             films = searcher(quoted_title)
             if len(films) == 1:
-                detail = getter(films[0].get("id"))
+                detail = getter(str(films[0].get("id")))
                 __update_event(event, key, detail)
         elif force:
             outer_ids = event["outer_id"]
@@ -118,8 +127,6 @@ def __search_and_update_with_outer_db(event: dict, key: str, getter, force=False
                 __update_event(event, key, detail)
         return event
     return decolator
-
-# process control functions
 
 
 def __nested_child_update(parent: dict, key: str, new_child: dict):
@@ -162,7 +169,7 @@ def __update_title_img(event: dict):
 
 
 def __event_has_not_this_key(event: dict, key: str):
-    # 対象情報のkeyがイベントに追加されていないことを確認する
+    # 対象情報の外部IDがイベントに存在しないことを確認する
     id_item = event.get("outer_id")
     if id_item is None:
         return True

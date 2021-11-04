@@ -36,27 +36,40 @@ def evt_add():
 @events.route('/events/update/all')
 def all_sync():
     # ストレージ上のイベント情報に補足情報を追加し上書きする
-    # forceパラメータをつけると、すでにIDが確定したeventも強制的に上書きする
-    if request.args.get('force') is not None:
-        return func.update_storage_by(
-            lambda events: func.do_every_events(events, func.update_with_all_sources, force=True))
-    else:
-        return func.update_storage_by(
-            lambda events: func.do_every_events(events, func.update_with_all_sources))
+    # forceパラメータをつけると、すでに外部IDが確定したeventも強制的に上書きする
+    return __sync_by_func(func.update_with_all_sources)
 
 
 @events.route('/events/update/eiga_db')
 def eigadb_sync():
     # ストレージ上のイベント情報に映画DBから補足情報を追加し上書きする
-    return func.update_storage_by(
-        lambda events: func.do_every_events(events, func.update_with_eigadb))
+    # forceパラメータをつけると、すでに外部IDが確定したeventも強制的に上書きする
+    return __sync_by_func(func.update_with_eigadb)
 
 
 @events.route('/events/update/imdb')
 def imdb_sync():
     # ストレージ上のイベント情報にIMDBから補足情報を追加し上書きする
-    return func.update_storage_by(
-        lambda events: func.do_every_events(events, func.update_with_imdb))
+    # forceパラメータをつけると、すでに外部IDが確定したeventも強制的に上書きする
+    return __sync_by_func(func.update_with_imdb)
+
+
+@events.route('/events/update/tmdb')
+def tmdb_sync():
+    # ストレージ上のイベント情報にTMDBから補足情報を追加し上書きする
+    # forceパラメータをつけると、すでに外部IDが確定したeventも強制的に上書きする
+    return __sync_by_func(func.update_with_tmdb)
+
+
+def __sync_by_func(updater):
+    # ストレージ上のイベント情報に補足情報を追加し上書きする
+    # forceパラメータをつけると、すでに外部IDが確定したeventも強制的に上書きする
+    if request.args.get('force') is not None:
+        return func.update_storage_by(
+            lambda events: func.do_every_events(events, updater, force=True))
+    else:
+        return func.update_storage_by(
+            lambda events: func.do_every_events(events, updater))
 
 
 @events.route('/events/temp')

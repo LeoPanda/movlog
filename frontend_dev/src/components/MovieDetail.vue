@@ -27,15 +27,21 @@
               />
             </v-row>
             <v-row>
-              <v-card flat width="300" class="d-flex justify-space-around pl-1">
+              <v-card
+                flat
+                width="300"
+                class="d-flex justify-space-around pl-1"
+                v-if="visibleEnTitle"
+              >
                 <!-- 英語タイトル名 -->
                 <CardTextField
-                  v-if="visibleEnTitle"
                   v-model="event.en_title"
                   label="english title"
                   :editMode="editMode"
                   width="300"
                 />
+              </v-card>
+              <v-card flat class="d-flex justify-space-around ma-0" width="300">
                 <!-- 劇場名-->
                 <SelectableItems
                   v-if="!event['on_tv']"
@@ -239,13 +245,16 @@ export default {
     }
     this.watchDate = getYMD(this.event.start.date_time);
     if (!this.event["img_src"]) {
-      this.event["img_src"] = { imdb: "", eiga_db: "" };
+      this.event["img_src"] = { imdb: "", eiga_db: "", tmdb: "" };
     } else {
       if (!this.event.img_src["eiga_db"]) {
         this.event.img_src["eiga_db"] = "";
       }
       if (!this.event.img_src["imdb"]) {
         this.event.img_src["imdb"] = "";
+      }
+      if (!this.event.img_src["tmdb"]) {
+        this.event.img_src["tmdb"] = "";
       }
     }
   },
@@ -286,7 +295,7 @@ export default {
       this.event = {};
       this.$set(this.event, "id", getNewId());
       this.$set(this.event, "start", { date_time: getIsoDate() });
-      this.$set(this.event, "img_src", { imdb: "", eiga_db: "" });
+      this.$set(this.event, "img_src", { imdb: "", eiga_db: "", tmdb: "" });
       this.$set(this.event, "on_tv", true);
     },
     loadEvent() {

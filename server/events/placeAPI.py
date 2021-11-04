@@ -3,7 +3,7 @@ import json
 from flask import jsonify
 from collections import Counter
 from server.model.locationSchema import LocationSchema
-from server.secret import API_KEY
+from server.secret import GCP_KEY
 
 PLACE_URL = "https://maps.googleapis.com/maps/api/place"
 SEARCH_URI = "/textsearch/json?query="
@@ -65,7 +65,7 @@ def get_new_location_names(current_names, storage_names):
 
 def get_place_infos(name, isSingle=False, isPhoto=True):
     # nameをkey にして google map  API からPlace情報を検索する
-    req = PLACE_URL+SEARCH_URI+name+FIELDS+"&language=ja"+"&key="+API_KEY
+    req = PLACE_URL+SEARCH_URI+name+FIELDS+"&language=ja"+"&key="+GCP_KEY
     res = json.loads(requests.get(req).text)
     status = res.get('status')
     if status != 'OK':
@@ -102,7 +102,7 @@ def set_place_info(result, isPhoto=True):
 
 def get_photo_url(reference):
     # 場所の写真URLを取得する
-    req = PLACE_URL+PHOTO_URI + reference + "&key=" + API_KEY
+    req = PLACE_URL+PHOTO_URI + reference + "&key=" + GCP_KEY
     return requests.get(req).url
 
 

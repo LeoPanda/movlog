@@ -7,6 +7,7 @@ class OuterSite(Schema):
     # 外部データソースサイト
     imdb = fields.Str()
     eiga_db = fields.Str()
+    tmdb = fields.Str()
 
 
 class CalendarSchema(MetaSchema):

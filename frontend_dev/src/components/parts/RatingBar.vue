@@ -52,17 +52,17 @@
         @click="openWin('imdb', 'https://www.imdb.com/title/tt')"
         >IMDb{{ imdbRate }}
       </v-btn>
-      <!-- 映画DBリンクボタン -->
+      <!-- TMDBリンクボタン -->
       <v-btn
-        v-if="event.outer_id && event.outer_id.eiga_db"
+        v-if="event.outer_id && event.outer_id.tmdb"
         :x-small="!isDetail"
         class="mx-0"
         color="accent"
         dense
         :width="getNumWidth"
         text
-        @click="openWin('eiga_db', 'https://eigadb.com/')"
-        >映画DB{{ eigaRate }}
+        @click="openWin('tmdb', 'https://www.themoviedb.org/movie/')"
+        >TMDB{{ tmdbRate }}
       </v-btn>
       <!--googleカレンダーリンクボタン-->
       <v-btn
@@ -116,13 +116,13 @@ export default {
     getNumWidth() {
       return (this.isNum ? 60 : 30) + (this.isDetail ? 20 : 0);
     },
-    eigaRate() {
-      //映画DBレート表示
+    tmdbRate() {
+      //tmDBレート表示
       if (!this.isNum) {
         return "";
       }
-      if ("outer_rate" in this.event && "eiga_db" in this.event.outer_rate) {
-        return "(" + this.event.outer_rate.eiga_db + ")";
+      if ("outer_rate" in this.event && "tmdb" in this.event.outer_rate) {
+        return "(" + this.event.outer_rate.tmdb + ")";
       } else {
         return "";
       }

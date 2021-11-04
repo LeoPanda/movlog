@@ -44,6 +44,7 @@ export default {
   methods: {
     setImgs() {
       this.$set(this.imgs, "imdb", this.imgSrc["imdb"]);
+      this.$set(this.imgs, "tmdb", this.imgSrc["tmdb"]);
       this.$set(this.imgs, "eiga_db", this.imgSrc["eiga_db"]);
     },
   },

@@ -26,6 +26,18 @@
         :id="event['outer_id'] ? event.outer_id['imdb'] : ''"
         @input="(selected) => this.onIDChange('imdb', selected.id)"
       />
+    </v-row>
+    <v-row>
+      <!--TMDB検索セレクタ-->
+      <IDSelector
+        label="TMDB"
+        site="tmdb"
+        :keyword="keyword"
+        :id="event['outer_id'] ? event.outer_id['tmdb'] : ''"
+        @input="(selected) => this.onIDChange('tmdb', selected.id)"
+      />
+    </v-row>
+    <v-row>
       <!--映画DB検索セレクタ-->
       <IDSelector
         label="映画DB"
@@ -34,11 +46,11 @@
         :id="event['outer_id'] ? event.outer_id['eiga_db'] : ''"
         @input="(selected) => this.onIDChange('eiga_db', selected.id)"
       />
-      <!--ローディング中オーバーレイ -->
-      <v-overlay absolute :value="progress">
-        <v-progress-circular indeterminate size="64"></v-progress-circular>
-      </v-overlay>
     </v-row>
+    <!--ローディング中オーバーレイ -->
+    <v-overlay absolute :value="progress">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
   </v-card>
 </template>
 <script>
@@ -75,7 +87,7 @@ export default {
       //リターン値をセットする
 
       //外部サイトデータの初期値
-      const outer_init = { imdb: "", eiga_db: "" };
+      const outer_init = { imdb: "", eiga_db: "", tmdb: "" };
       //ID
       if (!("outer_id" in this.event)) {
         this.$set(this.event, "outer_id", outer_init);

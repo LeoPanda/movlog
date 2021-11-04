@@ -27,6 +27,10 @@ async function doAjax(url, ajaxFunc, json = null) {
     if ("auth_url" in res.data) {
         location.href = getDevServer() + res.data.auth_url;
     } else {
+        if ("error" in res.data) {
+            console.log("サーバーからのレスポンスメッセージに下のエラーが含まれています。")
+            console.log(res.data.error)
+        }
         return res
     }
 }

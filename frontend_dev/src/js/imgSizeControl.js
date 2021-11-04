@@ -6,6 +6,7 @@ const IMDBX_PATTERN = /(^https:\/\/m.media-amazon.com\/images\/.+_[A-Z]X)(\d+)(_
 const IMDBY_PATTERN = /(^https:\/\/m.media-amazon.com\/images\/.+_[A-Z]Y)(\d+)(_CR)(\d+)(,\d+),(\d+),(\d+)(.*.jpg)/
 const AMAZON1_PATTERN = /(^https:\/\/images-na.ssl-images-amazon.com\/images\/.*_[A-Z]{2})(\d+)(_.jpg)/
 const AMAZON2_PATTERN = /(^https:\/\/m.media-amazon.com\/images\/.*_[A-Z]{2})(\d+)(_.jpg)/
+const TMDB_PATTERN = /(^https:\/\/image.tmdb.org\/t\/p\/w)(\d+)(\/.*[A-Z].{4})/
 
 const SIZE = {
     imdbX: {
@@ -22,6 +23,11 @@ const SIZE = {
         small: '$164$3',
         middle: '$1268$3',
         large: '$1512$3',
+    },
+    tmdb: {
+        small: '$145$3',
+        middle: '$1300$3',
+        large: '$1500$3',
     }
 }
 
@@ -38,6 +44,9 @@ export function getImgUrl(url, size) {
     }
     if (AMAZON2_PATTERN.test(url)) {
         return url.replace(AMAZON2_PATTERN, SIZE.amazon[size])
+    }
+    if (TMDB_PATTERN.test(url)) {
+        return url.replace(TMDB_PATTERN, SIZE.tmdb[size])
     }
     return url;
 }
