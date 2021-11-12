@@ -12,13 +12,15 @@
         @change="$emit('input', img)"
       >
         <template v-slot:label>
-          <v-col class="pa-0 ma-0 mb-2">
-            <v-img
-              width="124"
-              height="184"
-              class="white--text"
-              :src="img"
-            ></v-img>
+          <v-col class="pa-0 ma-0 mb-2 mx-2">
+            <v-badge overlap center :content="key">
+              <v-img
+                width="124"
+                height="184"
+                class="white--text"
+                :src="img"
+              ></v-img>
+            </v-badge>
           </v-col>
         </template>
       </v-radio>
@@ -28,7 +30,7 @@
 <script>
 export default {
   name: "ImageSelector",
-  props: ["imgSrc", "preSelected"],
+  props: ["imgSrc", "preSelected", "triger"],
   data() {
     return {
       imgs: {},
@@ -50,7 +52,7 @@ export default {
   },
 
   watch: {
-    imgSrc: {
+    triger: {
       handler: function () {
         this.setImgs();
       },

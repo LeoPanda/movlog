@@ -1,29 +1,34 @@
 <template>
-  <!--TV鑑賞チェックボックス-->
+  <!--鑑賞メディア切替チェックボックス-->
   <div class="pa-0 ma-0">
-    <!--アイコン-->
+    <!--表示用アイコン-->
     <v-icon
       class="mt-4 mx-0 px-0"
       v-if="!editMode"
-      color="info"
-      :disabled="!onTv"
-      >mdi-television-box</v-icon
+      :color="getMediaIcon(onTv).color"
+      >{{ getMediaIcon(onTv).icon }}</v-icon
     >
-    <!--チェックボックス-->
+    <!--入力用チェックボックス-->
     <v-checkbox v-model="onTv" v-if="editMode">
       <template v-slot:label>
-        <v-icon color="info" :disabled="!onTv">mdi-television-box</v-icon>
+        <v-icon :color="getMediaIcon(onTv).color">{{
+          getMediaIcon(onTv).icon
+        }}</v-icon>
       </template>
     </v-checkbox>
   </div>
 </template>
 <script>
+import { getMediaIcon } from "@/js/iconSetter";
 export default {
   props: ["value", "editMode"],
   data() {
     return {
       onTv: false,
     };
+  },
+  methods: {
+    getMediaIcon,
   },
   mounted() {
     this.onTv = this.value;

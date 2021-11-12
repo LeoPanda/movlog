@@ -82,7 +82,7 @@ export default {
             this.displayedEvents =
                 this.events.slice(startIndex, startIndex + this.getPageSize());
             this.$store.commit("SET_PAGE_START_INDEX", startIndex);
-            this.$refs.top.scrollIntoView(true)
+            this.$refs.top.scrollIntoView({ block: "end" })
         },
     },
     watch: {

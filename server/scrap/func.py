@@ -3,10 +3,10 @@ import re
 from bs4 import BeautifulSoup
 
 
-def get_url(url, usage):
+def get_url(url, usage, *param):
     # スクレイプ先サイトのURLを取得する
-    site_url = str(url.get("site"))
-    usage_path = str(url.get(usage))
+    site_url = url.get("site")
+    usage_path = (url.get(usage)).format(*param)
     return site_url + usage_path
 
 

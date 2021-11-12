@@ -66,7 +66,7 @@ export default {
     doTrash(id) {
       //idで指定されたイベントを削除する
       this.events = this.getStoredEvent.filter((event) => event.id != id);
-      this.displayEvents = this.getDisplayEvents(this.events); //再描画
+      this.paging(this.pagenation.num); //再描画
       this.$store.commit("SET_EVENTS", this.events);
       this.onTrash = false;
       setUploadItem(ITEMS.events);

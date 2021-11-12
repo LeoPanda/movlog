@@ -18,16 +18,6 @@
       </v-col>
     </v-row>
     <v-row>
-      <!--IMDB検索セレクタ-->
-      <IDSelector
-        label="imdb"
-        site="imdb"
-        :keyword="keyword"
-        :id="event['outer_id'] ? event.outer_id['imdb'] : ''"
-        @input="(selected) => this.onIDChange('imdb', selected.id)"
-      />
-    </v-row>
-    <v-row>
       <!--TMDB検索セレクタ-->
       <IDSelector
         label="TMDB"
@@ -35,6 +25,16 @@
         :keyword="keyword"
         :id="event['outer_id'] ? event.outer_id['tmdb'] : ''"
         @input="(selected) => this.onIDChange('tmdb', selected.id)"
+      />
+    </v-row>
+    <v-row>
+      <!--IMDB検索セレクタ-->
+      <IDSelector
+        label="imdb"
+        site="imdb"
+        :keyword="keyword"
+        :id="event['outer_id'] ? event.outer_id['imdb'] : ''"
+        @input="(selected) => this.onIDChange('imdb', selected.id)"
       />
     </v-row>
     <v-row>
@@ -83,16 +83,18 @@ export default {
       this.setRetVal(site, id, response.data);
       this.$emit("input", this.event);
     },
+    set_outer_key(key) {
+      //外部サイトデータの初期化
+      if (!(key in this.event)) {
+        this.$set(this.event, key, { imdb: "", eiga_db: "", tmdb: "" });
+      }
+    },
     setRetVal(site, id, data) {
       //リターン値をセットする
-
-      //外部サイトデータの初期値
-      const outer_init = { imdb: "", eiga_db: "", tmdb: "" };
       //ID
-      if (!("outer_id" in this.event)) {
-        this.$set(this.event, "outer_id", outer_init);
-      }
-      this.$set(this.event.outer_id, site, id);
+      this.set_outer_key("outer_id");
+      this.$set(this.event.outer_id, site, id.toString());
+
       //英語タイトル
       if ("en_title" in data) {
         if (data.en_title.length > 0) {
@@ -118,23 +120,19 @@ export default {
         }
       }
       //ポスターイメージ
+      this.set_outer_key("img_src");
+      let img_src = "";
       if ("img_src" in data) {
-        if (!("img_src" in this.event)) {
-          this.$set(this.event, "img_src", outer_init);
-        }
-        this.$set(
-          this.event.img_src,
-          site,
-          this.getImgUrl(data.img_src, "middle")
-        );
+        img_src = this.getImgUrl(data.img_src, "middle");
       }
+      this.$set(this.event.img_src, site, img_src);
       //レート
+      this.set_outer_key("outer_rate");
+      let rate = "";
       if ("rate" in data) {
-        if (!("outer_rate" in this.event)) {
-          this.$set(this.event, "outer_rate", outer_init);
-        }
-        this.$set(this.event.outer_rate, site, data.rate);
+        rate = data.rate;
       }
+      this.$set(this.event.outer_rate, site, rate);
     },
     flipKeyword() {
       //検索キーワード（タイトル/英語タイトル）切り替え

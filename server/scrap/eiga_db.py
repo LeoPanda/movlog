@@ -5,15 +5,15 @@ from bs4 import BeautifulSoup
 import requests
 
 URL = {"site": "https://eigadb.com",
-       "search": "/search-cinema/result?AllSearchForm%5Bkeyword%5D=",
-       "detail": "/", }
+       "search": "/search-cinema/result?AllSearchForm%5Bkeyword%5D={0}",
+       "detail": "/{0}", }
 
 IMG_PATERN = re.compile(r'.*(http.*)\'')
 
 
 def search_by_title(title):
     # 映画DBからタイトルに一致する作品のリストを取得する
-    @func.searched_item_list_maker(func.get_url(URL, "search") + title,
+    @func.searched_item_list_maker(func.get_url(URL, "search", title),
                                    tag='li', class_='searchResult-movie__listItem p-listItem')
     def get_item(element):
         id = element.h3.a['href'][1:]
@@ -28,7 +28,7 @@ def search_by_title(title):
 
 def get_detail(id):
     # 映画DBから映画の詳細情報を取得する
-    res = requests.get(func.get_url(URL, "detail") + id)
+    res = requests.get(func.get_url(URL, "detail", id))
     if res.ok is False:
         raise MovlogException(res.reason)
 

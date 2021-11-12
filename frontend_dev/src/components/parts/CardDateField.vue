@@ -3,7 +3,6 @@
   <v-col>
     <!--クリック時ピッカー表示-->
     <v-menu
-      ref="datePicker"
       v-model="datePicker"
       :close-on-content-click="false"
       transition="scale-transition"
@@ -46,6 +45,7 @@ export default {
   data() {
     return {
       date: "",
+      datePicker: false,
     };
   },
   mounted() {

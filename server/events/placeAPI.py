@@ -43,7 +43,6 @@ def get_location_info_by_names(names):
     # 劇場名リストを元にロケーション情報リストを得る
     locations = []
     for name in names:
-        print(name, end=" ")
         # 補完するロケーション情報はname一件につき一件づつにする
         # nameはイベント情報から得たものの方を採用する
         locations.append(get_place_infos(name, isSingle=True)[0])
@@ -53,13 +52,14 @@ def get_location_info_by_names(names):
 def get_new_location_names(current_names, storage_names):
     # ストレージに保管されていないロケーション名を検出する
     new_names = []
-    print("new locations:")
+    print("extracting new locations...")
     for current in current_names:
         exsists = list(
             filter(lambda storage: storage == current, storage_names))
         if(len(exsists) == 0):
             print(current, end=" ")
             new_names.append(current)
+    print(" end.")
     return new_names if len(new_names) > 0 else None
 
 

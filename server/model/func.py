@@ -62,17 +62,16 @@ def __is_domestic(summary: str) -> bool:
     return not ret
 
 
-def organized_event_info(events):
-    # event情報を再構成する
-    for event in events:
-        summary = event.get('summary')
-        event["title"] = __get_clean_title(summary)
-        event["is_domestic"] = __is_domestic(summary)
-        event["screen_type"] = get_screen_types(summary)
-        location = __transHankaku(event.get('location'))
-        event["location"] = location.split(',')[0].replace(
-            ' ', '') if location is not None else location
-    return events
+def shape_event_info(event):
+    # event情報を整形する
+    summary = event.get('summary')
+    event["title"] = __get_clean_title(summary)
+    event["is_domestic"] = __is_domestic(summary)
+    event["screen_type"] = get_screen_types(summary)
+    location = __transHankaku(event.get('location'))
+    event["location"] = location.split(',')[0].replace(
+        ' ', '') if location is not None else location
+    return event
 
 
 def __get_clean_title(title: str):
@@ -80,14 +79,6 @@ def __get_clean_title(title: str):
     for regex in OMMIT_PATERN:
         title = re.sub(regex, '', title)
     return title
-
-
-def temporarry_event_rewrite(events):
-    # FIXME:location情報のための一時ロジック
-    for event in events:
-        event["location"] = __transHankaku(event["location"])
-        print(event["location"])
-    return events
 
 
 def __transHankaku(zenkaku):

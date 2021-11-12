@@ -2,7 +2,7 @@ from flask import jsonify
 from urllib.parse import quote
 from server.model.eventSchema import EventsSchema
 from server.scrap import imdb, eiga_db, tmdb
-from server.model.func import prevent_overwrite, organized_event_info
+from server.model.func import prevent_overwrite, shape_event_info
 from server.events.calendarAPI import get_calendar_events
 from server.events.placeAPI import add_new_locations_to_store
 import json
@@ -17,33 +17,42 @@ def add_from_google_calendar(events: list, creds):
     latest_date = events_schema.get_time_max(events)  # メインスキーマの最終更新日の取得
     # FIXME:テスト用件数制限
     #latest_date = '2020-10-01T11:33:00+09:00'
-    # FIXME:新宿武蔵野館追加対応用テンポラリ
-    #latest_date = '2015-11-01T11:33:00+09:00'
-    # calendar_events = get_calendar_events_temp(
-    #    creds, time_min=latest_date)
     print(latest_date+"以降のイベントを抽出中..")
     calendar_events = get_calendar_events(
         creds, time_min=latest_date)  # google カレンダーから最新情報の取得
 
-    new_events = events_schema.load(
-        calendar_events, many=True)  # googleカレンダー情報をスキーマに変換
-    events.extend(organized_event_info(  # サマリーから追加情報を再構成して追加
-        prevent_overwrite(events, new_events)))  # 最新情報のうち、既存の情報とかぶるものは排除する
-    do_every_events(events, update_with_all_sources)  # 外部ソースからイベント情報を補足する
+    new_event_candidates = events_schema.load(
+        calendar_events, many=True)  # googleカレンダー情報をイベントスキーマに変換
+    new_events = __finalize_new_events(  # カレンダー情報からイベント情報を構成する
+        prevent_overwrite(events, new_event_candidates))  # カレンダー情報のうち、既存の情報とかぶるものは排除する
+
+    events.extend(new_events)  # 新規イベントを追加
     add_new_locations_to_store(new_events)  # 新規イベントからロケーション情報を再構成する
 
     return events
 
 
+def temp_add_event(events: list):
+    # FIXME:手動でイベントデータを追加
+    temp_event = [{"en_title": "Paterson", "id": "addedbyhand20211114",
+                   "is_domestic": False, "location": "ヒューマントラストシネマ有楽町", "my_rate": 7, "outer_id": {"eiga_db": "", "imdb": "", "tmdb": ""},
+                   "outline": "",
+                   "screen_type": [], "start": {"date_time": "2017-09-05T11:15:00+09:30"}, "title": "パターソン", "title_img": ""}]
+    new_event = events_schema.load(temp_event)
+    events.extend(new_event)
+    return events
+
+
 def update_with_all_sources(event, force=False):
-    # 外部ソースへアクセスしてイベント情報を補足する
+    # 外部ソースの情報をイベント情報に付加する
+    update_with_tmdb(event, force)
     update_with_imdb(event, force)
     update_with_eigadb(event, force)
     __update_title_img(event)
 
 
 def update_with_eigadb(event: dict, force=False):
-    # 映画DBから情報を補足する
+    # 映画DBから情報を付加する
     @__search_and_update_with_outer_db(event, "eiga_db", eiga_db.get_detail, force)
     def searcher(queted_title):
         return eiga_db.search_by_title(queted_title)
@@ -51,7 +60,7 @@ def update_with_eigadb(event: dict, force=False):
 
 
 def update_with_imdb(event: dict, force=False):
-    # IMDBから情報を補足する
+    # IMDBから情報を付加する
     @__search_and_update_with_outer_db(event, "imdb", imdb.get_detail, force)
     def searcher(queted_title):
         return imdb.search_by_title(queted_title+"&exact=true")
@@ -59,7 +68,7 @@ def update_with_imdb(event: dict, force=False):
 
 
 def update_with_tmdb(event: dict, force=False):
-    # TMDBから情報を補足する
+    # TMDBから情報を付加する
     @__search_and_update_with_outer_db(event, "tmdb", tmdb.get_detail, force)
     def searcher(queted_title):
         return tmdb.search_by_title(queted_title+"&exact=true")
@@ -83,7 +92,7 @@ def do_every_events(events: list, func, **options):
 
 
 def update_storage_by(update_func, **options):
-    # ストレージ上のイベント情報に任意の関数から補足情報を追加し上書きする
+    # ストレージ上のイベント情報にupdate_func関数で補足情報を追加し上書きする
     events = update_func(events_schema.loads_from_storage(), **options)
     return save_events_by_schema(events)
 
@@ -102,6 +111,14 @@ def save_events_by_schema(events: str):
     return jsonify({"success": "Events are successfuly saved to storage."})
 
 # private functions
+
+
+def __finalize_new_events(new_events):
+    # 追加する新規情報を完成させる
+    for new_event in new_events:
+        shape_event_info(new_event)  # event情報の整形
+        update_with_all_sources(new_event)  # 外部ソースの情報を付加
+    return new_events
 
 
 def __search_and_update_with_outer_db(event: dict, key: str, getter, force=False):
@@ -152,7 +169,20 @@ def __update_event(event: dict, key: str, detail: dict):
                 nested_key = k
             __nested_child_update(event, nested_key, {key: v})
         else:
-            event.update({k: v})
+            if __is_able_overwirte(event, k, v):
+                event.update({k: v})
+
+
+def __is_able_overwirte(event: dict, k, v):
+    # 上書してもいい項目かどうかチェックする
+    overwite_protected_key = {"title", "en_title", "outline"}
+    if not (k in overwite_protected_key):
+        return True
+    if k in event:
+        if len(event.get(k)) > 0:
+            return False
+    else:
+        return True
 
 
 def __update_title_img(event: dict):

@@ -2,7 +2,6 @@
   <!-- IMDB，映画DB上での評価レーティングを表示する -->
   <v-col align-self="end" float class="ml-2 ma-0 pa-0">
     <v-card-actions class="mt-0 pa-0">
-      <v-spacer v-if="isDetail"></v-spacer>
       <!-- myレーティング -->
       <div class="d-flex text-caption" @click.stop="openRate(true)">
         <v-rating
@@ -45,12 +44,12 @@
         v-if="event.outer_id && event.outer_id.imdb"
         :x-small="!isDetail"
         color="accent"
-        :class="isDetail ? 'mx-0 ml-4' : 'mx-0'"
+        :class="isDetail ? 'mx-0 ml-1' : 'mx-0'"
         dense
         :width="getNumWidth"
         text
         @click="openWin('imdb', 'https://www.imdb.com/title/tt')"
-        >IMDb{{ imdbRate }}
+        >IMDb<br />{{ imdbRate }}
       </v-btn>
       <!-- TMDBリンクボタン -->
       <v-btn
@@ -62,11 +61,11 @@
         :width="getNumWidth"
         text
         @click="openWin('tmdb', 'https://www.themoviedb.org/movie/')"
-        >TMDB{{ tmdbRate }}
+        >TMDB<br />{{ tmdbRate }}
       </v-btn>
       <!--googleカレンダーリンクボタン-->
       <v-btn
-        class="ml-1"
+        class="mx-0"
         v-if="event.html_link && isDetail"
         color="accent"
         icon

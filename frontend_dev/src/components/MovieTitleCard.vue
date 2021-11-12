@@ -3,13 +3,13 @@
   <v-card class="my-4">
     <v-row class="ml-1">
       <!--テレビで鑑賞バッジ-->
-      <TvBadge :isOnTv="isOnTv">
+      <MediaBadge :isOnTv="isOnTv">
         <!-- タイトル -->
         <v-card-title
           v-text="trimedTitle"
           class="pa-0 ma-0 subtitle-2"
         ></v-card-title>
-      </TvBadge>
+      </MediaBadge>
     </v-row>
     <v-row class="ml-1">
       <!-- 鑑賞日付 -->
@@ -70,7 +70,7 @@ export default {
   components: {
     RatingBar: () => import("./parts/RatingBar"),
     SelectableItems: () => import("./parts/SelectableItems"),
-    TvBadge: () => import("./parts/TvBadge"),
+    MediaBadge: () => import("./parts/MediaBadge"),
   },
   data() {
     return { trimedTitle: "" };
@@ -88,14 +88,25 @@ export default {
   methods: {
     getStdDate,
     getImgUrl,
+    trimTitle(limitLength) {
+      if (this.event.title.length > limitLength) {
+        //長過ぎる映画タイトル名をトリミング
+        this.trimedTitle =
+          this.event.title.substring(0, limitLength - 2) + "..";
+      } else {
+        this.trimedTitle = this.event.title;
+      }
+    },
   },
   mounted() {
-    if (this.event.title.length > 13) {
-      //長過ぎる映画タイトル名をトリミング
-      this.trimedTitle = this.event.title.substring(0, 11) + "・・";
-    } else {
-      this.trimedTitle = this.event.title;
+    //半角文字混じりのタイトル名のトリミング調整
+    let titleWidth = 14;
+    let singleBytesMatch = this.event.title.match(/[\x20-\x7E]/gi);
+    if (singleBytesMatch) {
+      titleWidth = titleWidth + Math.floor(singleBytesMatch.length / 2);
     }
+    //タイトルのトリミング
+    this.trimTitle(titleWidth);
   },
 };
 </script>

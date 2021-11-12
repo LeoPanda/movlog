@@ -6,15 +6,15 @@ import json
 import requests
 
 URL = {"site": "https://www.imdb.com",
-       "search": "/find?&s=tt&ttype=ft&ref_=fn_tt&&q=",
-       "detail": "/title/tt"}
+       "search": "/find?&s=tt&ttype=ft&ref_=fn_tt&&q={0}",
+       "detail": "/title/tt{0}"}
 
 ID_PATERN = re.compile(r'^\/title\/tt(\d+)\/$')
 
 
 def search_by_title(title):
     # imdbからタイトルに一致する作品のリストを取得する
-    @func.searched_item_list_maker(func.get_url(URL, "search") + title,
+    @func.searched_item_list_maker(func.get_url(URL, "search", title),
                                    tag='tr', class_='findResult')
     def get_item(element):
         title_section = element.find('td', class_='result_text')
@@ -44,7 +44,7 @@ def search_by_title(title):
 
 def get_detail(id):
     # IMDBから映画の詳細情報を得る
-    res = requests.get(func.get_url(URL, "detail") + id)
+    res = requests.get(func.get_url(URL, "detail", id))
     soup = BeautifulSoup(res.text, 'html.parser')
 
     script_section = soup.find('script', type='application/ld+json')

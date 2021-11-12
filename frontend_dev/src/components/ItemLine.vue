@@ -2,15 +2,15 @@
   <v-list-item @click.stop="getLink(event.id)" class="mx-0 my-2">
     <!--ポスターイメージ-->
     <v-subheader>
-      <!--テレビで鑑賞バッジ-->
-      <tvBadge :isOnTv="isOnTv" :small="true">
+      <!--鑑賞メディア表示バッジ-->
+      <MediaBadge :isOnTv="isOnTv" :small="true">
         <!--ポスターアート-->
         <v-img
           max-height="64"
           max-width="48"
           :src="getImgUrl(event['title_img'], 'small')"
         />
-      </tvBadge>
+      </MediaBadge>
     </v-subheader>
     <v-list-item-content class="mx-0">
       <!--タイトル-->
@@ -49,7 +49,7 @@ export default {
   name: "ItemLine",
   props: ["event", "onTrash"],
   components: {
-    TvBadge: () => import("./parts/TvBadge"),
+    MediaBadge: () => import("./parts/MediaBadge"),
     RatingBar: () => import("./parts/RatingBar"),
   },
   data() {

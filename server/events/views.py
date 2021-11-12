@@ -3,7 +3,6 @@ from flask.globals import request
 from server.authorize.func import route_with_creds
 from server.events import func
 from server.events import placeAPI
-from server.model.func import temporarry_event_rewrite
 
 
 events = Blueprint('events', __name__)
@@ -75,7 +74,7 @@ def __sync_by_func(updater):
 @events.route('/events/temp')
 # FIXME:情報のリライト用テンポラリ
 def temp_sync():
-    return func.update_storage_by(lambda events: temporarry_event_rewrite(events))
+    return func.update_storage_by(func.temp_add_event)
 
 
 @events.route('/events/location/add')

@@ -1,4 +1,5 @@
 from server.scrap import imdb, eiga_db, tmdb
+from flask.globals import request
 from flask import Blueprint, jsonify
 
 scrap = Blueprint('scrap', __name__)
@@ -43,4 +44,9 @@ def get_tmdb_detail(id):
 @scrap.route('/scrap/tmdb/credit/<id>')
 def get_tmdb_credits(id):
     # TMDBから映画のクレジット情報を取得する
-    return jsonify(tmdb.get_credits(id))
+    # パラメータにfullが指定してあるときはデータを全件
+    # それ以外はメインのキャストとスタッフだけを返す
+    full = False
+    if request.args.get('full') is not None:
+        full = True
+    return jsonify(tmdb.get_credits(id, full))
