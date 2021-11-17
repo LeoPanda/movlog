@@ -2,14 +2,11 @@
   <!-- 鑑賞映画表示用カードコンポーネント -->
   <v-card class="my-4">
     <v-row class="ml-1">
-      <!--テレビで鑑賞バッジ-->
-      <MediaBadge :isOnTv="isOnTv">
-        <!-- タイトル -->
-        <v-card-title
-          v-text="trimedTitle"
-          class="pa-0 ma-0 subtitle-2"
-        ></v-card-title>
-      </MediaBadge>
+      <!-- タイトル -->
+      <v-card-title
+        v-text="trimedTitle"
+        class="pa-0 ma-0 subtitle-2"
+      ></v-card-title>
     </v-row>
     <v-row class="ml-1">
       <!-- 鑑賞日付 -->
@@ -30,12 +27,15 @@
       </v-col>
     </v-row>
     <v-row class="ml-1">
-      <!-- 劇場名/プロバイダ名 -->
-      <v-col class="pa-0 ma-0">
-        <v-card-subtitle class="pa-0 ma-0 caption">
-          {{ getThearter }}
-        </v-card-subtitle>
-      </v-col>
+      <!--メディアタイプバッジ-->
+      <MediaBadge :isOnTv="isOnTv">
+        <!-- 劇場名/プロバイダ名 -->
+        <v-col class="pa-0 ma-0">
+          <v-card-subtitle class="pa-0 ma-0 caption">
+            {{ trimedTheater }}
+          </v-card-subtitle>
+        </v-col>
+      </MediaBadge>
     </v-row>
     <v-row>
       <!-- ポスターアート -->
@@ -73,7 +73,7 @@ export default {
     MediaBadge: () => import("./parts/MediaBadge"),
   },
   data() {
-    return { trimedTitle: "" };
+    return { trimedTitle: "", trimedTheater: "" };
   },
   computed: {
     isOnTv() {
@@ -88,25 +88,33 @@ export default {
   methods: {
     getStdDate,
     getImgUrl,
-    trimTitle(limitLength) {
-      if (this.event.title.length > limitLength) {
-        //長過ぎる映画タイトル名をトリミング
-        this.trimedTitle =
-          this.event.title.substring(0, limitLength - 2) + "..";
-      } else {
-        this.trimedTitle = this.event.title;
+    trimTitle(title, maxWidth) {
+      // 半角文字混じりの文字数調整
+      const singleByteRe = /[\x20-\x7E]/;
+      let retTitle = "";
+      let index = 0;
+      for (let i = 0; i < title.length; i++) {
+        let letter = title[i];
+        index = index + (singleByteRe.test(letter) ? 1 : 2);
+        if (index > maxWidth) {
+          retTitle = retTitle + "..";
+          break;
+        }
+        retTitle = retTitle + letter;
       }
+      return retTitle;
     },
   },
   mounted() {
-    //半角文字混じりのタイトル名のトリミング調整
-    let titleWidth = 14;
-    let singleBytesMatch = this.event.title.match(/[\x20-\x7E]/gi);
-    if (singleBytesMatch) {
-      titleWidth = titleWidth + Math.floor(singleBytesMatch.length / 2);
-    }
-    //タイトルのトリミング
-    this.trimTitle(titleWidth);
+    //映画タイトルのトリミング
+    this.trimedTitle = this.trimTitle(this.event.title, 26);
+    //ロケーション情報のトリミング
+    this.trimedTheater = this.trimTitle(
+      this.event["on_tv"]
+        ? this.event["streaming_provider"]
+        : this.event["location"].split(",")[0],
+      26
+    );
   },
 };
 </script>

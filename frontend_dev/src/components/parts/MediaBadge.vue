@@ -1,14 +1,18 @@
 <template>
-  <!--鑑賞メディア表示バッジ-->
-  <v-badge
-    :offset-x="small ? '6px' : '4px'"
-    :offset-y="small ? '20px' : '6px'"
-    :icon="getMediaIcon(isOnTv).icon"
-    :color="getMediaIcon(isOnTv).color"
-    left
-  >
+  <v-row no-gutters>
+    <div class="d-inline-flex">
+      <!--鑑賞メディア表示バッジ-->
+      <!--表示用アイコン-->
+      <v-icon
+        :x-small="small"
+        :small="!small"
+        class="mx-0 px-0"
+        :color="getMediaIcon(isOnTv).color"
+        >{{ getMediaIcon(isOnTv).icon }}</v-icon
+      >
+    </div>
     <slot></slot>
-  </v-badge>
+  </v-row>
 </template>
 <script>
 import { getMediaIcon } from "@/js/iconSetter";

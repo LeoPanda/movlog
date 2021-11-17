@@ -4,7 +4,7 @@
       <v-row class="d-flex justify-center">
         <v-col cols="auto" class="lime--text text--darken-3">MOVLOG</v-col>
         <v-col cols="auto">Personal movie watch diary.</v-col>
-        <v-col cols="auto">created by LeoPanda.</v-col>
+        <v-col cols="auto">created by @LeoPanda 2021.</v-col>
       </v-row>
     </v-container>
   </v-footer>

@@ -137,6 +137,10 @@
               label="detail"
             ></v-textarea>
           </v-row>
+          <!--キャスト/スタッフ一覧-->
+          <v-row v-if="!editMode && 'outer_id' in event">
+            <PeopleCards :tmdb_id="event['outer_id']['tmdb']" />
+          </v-row>
           <!-- 外部サイトの紐付け検索パネル -->
           <v-row v-if="editMode">
             <OuterIDSelectPanel
@@ -164,7 +168,7 @@
               />
             </template>
           </v-row>
-          <v-row>
+          <v-row class="mt-8 mb-1">
             <!-- レーティング表示 -->
             <RatingBar :event="event" :isNum="true" />
             <!-- EDITボタン -->
@@ -211,6 +215,7 @@ export default {
     EditButton: () => import("./parts/EditButton"),
     ExpansionPanel: () => import("./parts/ExpansionPanel"),
     OnTvCheckBox: () => import("./parts/OnTvCheckBox"),
+    PeopleCards: () => import("./PeopleCards"),
   },
   data() {
     return {

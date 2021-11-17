@@ -5,7 +5,7 @@
     <v-row width="300" class="d-flex ml-0">
       <!--序文-->
       <v-col cols="auto">
-        ローカルストレージ上のデータを削除します。アイテムを選択してください。
+        ローカルストレージ上のデータを更新します。アイテムを選択してください。
       </v-col>
     </v-row>
     <!--Item選択-->
@@ -43,14 +43,14 @@
           class="mr-0"
           :disabled="this.storage_items.length == 0"
         >
-          ローカルデータの削除
+          ローカルデータの更新
           <v-icon right> mdi-sync </v-icon></v-btn
         >
       </v-col>
       <!--確認ダイアログ-->
       <Confirm
         :openConfirm="dialog"
-        :msgItems="[{ message: 'ローカルデータを削除します。' }]"
+        :msgItems="[{ message: 'ローカルデータを更新します。' }]"
         confirmMsg="よろしいですか?"
         @do="goReload"
         @cancel="dialog = false"
@@ -77,7 +77,7 @@ export default {
         this.storage_items.forEach((item) => {
           clearLocalStorage(item);
         });
-        setMsg("ローカルデータを削除しました。", "success", "reload");
+        setMsg("ローカルデータを更新しました。", "success", "reload");
       }
       this.dialog = false;
       this.$router.push("/");

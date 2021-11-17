@@ -1,42 +1,47 @@
 <template>
   <v-list-item @click.stop="getLink(event.id)" class="mx-0 my-2">
-    <!--ポスターイメージ-->
-    <v-subheader>
-      <!--鑑賞メディア表示バッジ-->
-      <MediaBadge :isOnTv="isOnTv" :small="true">
-        <!--ポスターアート-->
-        <v-img
-          max-height="64"
-          max-width="48"
-          :src="getImgUrl(event['title_img'], 'small')"
-        />
-      </MediaBadge>
-    </v-subheader>
+    <!--ポスターアート-->
+    <v-img
+      max-height="64"
+      max-width="48"
+      :src="getImgUrl(event['title_img'], 'small')"
+    />
     <v-list-item-content class="mx-0">
       <!--タイトル-->
-      <v-list-item-title v-text="event.title" />
+      <v-list-item-title v-text="event.title" class="ml-1" />
       <!--レーティングバー-->
-      <RatingBar :event="event" :isNum="true" @openRate="openRate" />
+      <RatingBar
+        :event="event"
+        :isNum="true"
+        @openRate="openRate"
+        v-if="getVisible"
+      />
     </v-list-item-content>
     <v-list-item-content v-if="getVisible">
-      <!--劇場-->
-      <v-list-item-title
-        v-if="event['location'] && !event['on_tv']"
-        v-text="event.location.split(',')[0]"
-      ></v-list-item-title>
-      <!---配信プロバイダ-->
-      <v-list-item-title
-        v-if="event['streaming_provider']"
-        v-text="event.streaming_provider"
-      ></v-list-item-title>
+      <v-subheader>
+        <!--鑑賞メディア表示バッジ-->
+        <MediaBadge :isOnTv="isOnTv" :small="true" />
+        <!--劇場-->
+        <v-list-item-title
+          v-if="event['location'] && !event['on_tv']"
+          v-text="event.location.split(',')[0]"
+        />
+        <!---配信プロバイダ-->
+        <v-list-item-title
+          v-if="event['streaming_provider']"
+          v-text="event.streaming_provider"
+        />
+      </v-subheader>
       <!--鑑賞日-->
       <v-list-item-title
         v-text="getStdDate(event.start.date_time)"
-      ></v-list-item-title>
+        class="ml-1"
+      />
     </v-list-item-content>
+
     <!--削除ボタン-->
     <v-list-item-action class="mx-0">
-      <v-btn icon small @click="setTrash(event.id)">
+      <v-btn icon x-small @click="setTrash(event.id)">
         <v-icon>mdi-trash-can</v-icon>
       </v-btn>
     </v-list-item-action>
