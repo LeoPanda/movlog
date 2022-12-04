@@ -26,18 +26,17 @@ async function doAjax(url, ajaxFunc, json = null) {
         .catch(error => { logError(error) })
     if ("auth_url" in res.data) {
         location.href = getDevServer() + res.data.auth_url;
+    } else if ("error" in res.data) {
+        logError(url + ":" + res.data.error)
+        return false
     } else {
-        if ("error" in res.data) {
-            console.log("サーバーからのレスポンスメッセージに下のエラーが含まれています。")
-            console.log(res.data.error)
-        }
         return res
     }
 }
 //コンソールにエラー情報を表示する
 function logError(error) {
     setMsg("通信エラーが発生しました。コンソールを確認してください。", "error")
-    console.log("ajax通信でエラーが発生しました。")
+    console.error("ajax通信でエラーが発生しました。")
     console.dir(error)
 }
 //ローカルで実行している場合はパスを変更する

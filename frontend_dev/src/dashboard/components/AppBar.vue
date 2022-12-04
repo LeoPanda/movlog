@@ -1,6 +1,14 @@
 <template>
   <!--アプリケーショントップバー-->
-  <v-app-bar id="app-bar" absolute app color="transparent" flat height="75">
+  <v-app-bar
+    id="app-bar"
+    elevate-on-scroll
+    absolute
+    app
+    color="transparent"
+    flat
+    height="75"
+  >
     <v-app-bar-nav-icon class="pl-0">
       <!--ドロワー表示ボタン-->
       <v-btn class="mr-3" elevation="1" small @click="setDrawer(!drawer)">

@@ -13,7 +13,7 @@ def get_url(url, usage, *param):
 def searched_item_list_maker(req, tag, **find_options):
     # 検索リスト作成用雛形デコレータ
     def decolator(func) -> list:
-        res = requests.get(req)
+        res = get_by_pretended_browser(req)
         soup = BeautifulSoup(res.text, 'html.parser')
         elements = soup.find_all(tag, **find_options)
         items = []
@@ -23,3 +23,10 @@ def searched_item_list_maker(req, tag, **find_options):
                 items.append(item)
         return items
     return decolator
+
+
+def get_by_pretended_browser(req):
+    # 外部URI用リクエスタ
+    ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36'
+    headers = {'User-Agent': ua}
+    return requests.get(req, headers=headers)

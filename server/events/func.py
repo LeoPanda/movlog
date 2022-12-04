@@ -194,7 +194,7 @@ def __update_title_img(event: dict):
 
     img_src = event.get('img_src')
     imdb_src = img_src.get('imdb')
-    title_src = imdb_src if imdb_src is not None else img_src.get('eiga_db')
+    title_src = imdb_src if imdb_src is not None else img_src.get('tmdb')
     return event.update({"title_img": title_src})
 
 

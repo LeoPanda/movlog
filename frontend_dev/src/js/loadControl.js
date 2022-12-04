@@ -77,7 +77,7 @@ async function loadFromServer(items) {
         if (saveToLocal(item.local, response.data)) {
             loadLocalToStore(item)
         } else {
-            store.commit(item.sate, response.data)
+            store.commit(item.state, response.data)
         }
     }
     store.commit("SET_LOADING", false)

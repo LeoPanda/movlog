@@ -33,6 +33,11 @@ export default {
   data() {
     return { display: false };
   },
+  mounted() {
+    if ("text" in this.message) {
+      this.display = true;
+    }
+  },
   methods: {
     confirm() {
       this.$store.commit("SET_MESSAGE", "");

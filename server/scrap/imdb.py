@@ -6,36 +6,31 @@ import json
 import requests
 
 URL = {"site": "https://www.imdb.com",
-       "search": "/find?&s=tt&ttype=ft&ref_=fn_tt&&q={0}",
+       "search": "/find/?q={0}&s=tt&ttype=ft&ref_=fn_tt",
        "detail": "/title/tt{0}"}
 
-ID_PATERN = re.compile(r'^\/title\/tt(\d+)\/$')
+ID_PATERN = re.compile(r'^\/title\/tt(\d+)\/.*$')
 
 
 def search_by_title(title):
     # imdbからタイトルに一致する作品のリストを取得する
     @func.searched_item_list_maker(func.get_url(URL, "search", title),
-                                   tag='tr', class_='findResult')
+                                   tag='li', class_='ipc-metadata-list-summary-item')
     def get_item(element):
-        title_section = element.find('td', class_='result_text')
+        title_section = element.find(
+            'div', class_='ipc-metadata-list-summary-item__c')
         id_match = ID_PATERN.match(title_section.a['href'])
         if not(id_match):
             return None
         else:
             id = id_match[1]
 
-        title = ""
-        for string in title_section.strings:
-            title += string
-
-        if "aka " in title:
-            re_title = re.search('"(.*)"', title)
-            if re_title:
-                title = re_title.group(1)
+        title = title_section.find(
+            'a', class_='ipc-metadata-list-summary-item__t')
 
         item = {"id": id, "title": title}
 
-        img_src_segment = element.find('td', class_='primary_photo')
+        img_src_segment = element.find('div', class_='gLsKcY')
         if img_src_segment is not None:
             item.update({"img_src": img_src_segment.find('img')['src']})
         return item
@@ -44,7 +39,9 @@ def search_by_title(title):
 
 def get_detail(id):
     # IMDBから映画の詳細情報を得る
-    res = requests.get(func.get_url(URL, "detail", id))
+    ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36'
+    headers = {'User-Agent': ua}
+    res = func.get_by_pretended_browser(func.get_url(URL, "detail", id))
     soup = BeautifulSoup(res.text, 'html.parser')
 
     script_section = soup.find('script', type='application/ld+json')
